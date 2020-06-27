@@ -4,12 +4,22 @@
   "description": "shortens urls to punycode emoji urls",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js",
+    "dev": "nodemon index.js"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/lucblassel/emoji-shortener"
   },
   "author": "Luc Blassel",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "helmet": "^3.23.3",
+    "monk": "^7.3.0",
+    "morgan": "^1.10.0",
+    "nodemon": "^2.0.4"
+  }
 }
