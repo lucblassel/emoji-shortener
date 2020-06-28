@@ -1,0 +1,17 @@
+doctype html 
+html
+    head 
+        title 🌊 - Emoji shortener - 🌊
+        link(rel='stylesheet', href='styles.css')
+        link(rel='stylesheet', href='https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css', integrity="sha256-2YQRJMXD7pIAPHiXr0s+vlRWA7GYJEK0ARns7k2sbHY=", crossorigin="anonymous")
+    body
+        header.header
+            h1 🌊 Emoji URL shortener 🌊
+        div.spacer
+        div.container
+            p This URL: 
+                a(href=emojiURL) #{emojiURL}
+            p Should redirect you to: 
+                a(href=redirectURL) #{redirectURL}
+        div.E404
+            a(href="/index.html") ← go back 🏡

@@ -1,26 +1,32 @@
+<!-- Shamelessly lifted from Coding Garden -->
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>🌊 - Emoji shortener - 🌊</title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha256-2YQRJMXD7pIAPHiXr0s+vlRWA7GYJEK0ARns7k2sbHY=" crossorigin="anonymous" />
-        <link rel="stylesheet" href="/styles.css">
-    </head>
-    <body>
-        <!--[if lt IE 7]>
-            <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        <header class='header'>
-            <h1>🌊 Emoji URL shortener 🌊</h1>
-            <h3>(I need a name for this... sorry)</h3>
-        </header>
-
-
-    </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌊 - Emoji shortener - 🌊</title>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha256-2YQRJMXD7pIAPHiXr0s+vlRWA7GYJEK0ARns7k2sbHY=" crossorigin="anonymous">
+</head>
+<body>
+  <header>
+    <h1>🌊 Emoji URL shortener 🌊</h1>
+    <h3>(I need a name for this... sorry)</h3>
+  </header>
+  <main id="app">
+    <form class="form" v-if="formVisible" @submit.prevent="createUrl()">
+      <div v-if="error" class="error">
+        {{error}}
+      </div>
+      <input class="input" type="text" v-model="url" name="url" id="url" placeholder="enter a url">
+      <input class="input" type="text" v-model="emojis" name="emojis" id="emojis" placeholder="Here goe the emojis 🥳">
+      <button type="submit" class="create">create</button>
+    </form>
+    <div v-if="created">
+      <p class="created">Your short url is: <a :href="created">{{created}}</a></p>
+    </div>
+  </main>
+  <script src="https://unpkg.com/vue@2.6.11/dist/vue.js"></script>
+  <script src="app.js"></script>
+</body>
 </html>

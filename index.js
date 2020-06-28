@@ -7,6 +7,8 @@ const helmet = require("helmet");
 const punycode = require("punycode");
 const yup = require("yup");
 const nodeEmoji = require("node-emoji");
+const rateLimit = require('express-rate-limit');
+const slowDown = require('express-slow-down');
 
 // reading database address + secret
 require("dotenv").config();
@@ -24,12 +26,19 @@ urls.createIndex({ emojis: 1 }, { unique: true });
 const app = express();
 const port = process.env.PORT || 3000;
 
+// get domain name
+const domain = process.env.DOMAIN || 'localhost';
+
 // set up middleware
-app.use(express.static("public")); // serve static files
+app.use(express.static(path.join(__dirname, 'public'))); // serve static files
 app.use(morgan("combined")); // log requests
 app.use(cors()); // enable CORS
 app.use(helmet()); // secure app & set headers
 app.use(express.json()); // parse request body as JSON
+
+// templating
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "pug");
 
 // define paths
 const pathHomePage = path.join(__dirname, "public/index.html");
@@ -72,11 +81,19 @@ function generateRandomEmojis() {
 
 // serve landing page
 app.get("/", (req, res) => {
+    // res.render('index');
   res.sendFile(pathHomePage);
 });
 
 // create new shortened URL
-app.post("/newURL", async (req, res, next) => {
+app.post("/newURL", slowDown({
+    windowMs: 30 * 1000,
+    delayAfter: 1,
+    delayMs: 500
+}), rateLimit({
+    windowMs: 30 * 1000,
+    max: 1
+}), async (req, res, next) => {
   let { emojis, url } = req.body;
   let encodedEmojis = emojis ? punycode.encode(emojis) : undefined;
   try {
@@ -98,11 +115,12 @@ app.post("/newURL", async (req, res, next) => {
       throw new Error("There must be at least 1 emoji in the slug... 👹");
     }
 
-    let newURL = { emojis: encodedEmojis, url: url , raw: emojis};
+    let newURL = { emojis: encodedEmojis, url: url, raw: emojis };
     let created = await urls.insert(newURL);
-    res.send(created);
+    res.send({port:port, domain:domain, ...created});
   } catch (error) {
-    console.log("caught error sending to default handler.");
+    console.log("Error caught on this req");
+    console.log("params", req.params, "body", req.body);
     next(error);
   }
 });
@@ -113,11 +131,16 @@ app.get("/:id", async (req, res, next) => {
   try {
     const url = await urls.findOne({ emojis });
     if (url) {
-      return res.send(
-        `These emojis: ${punycode.decode(emojis)} redirect to: ${url.url}`
-      );
+      //   return res.send(
+      //     `These emojis: ${punycode.decode(emojis)} redirect to: ${url.url}`
+      //   );
+      res.render("response", {
+        emojiURL: `http://${domain}:${port}/${req.params.id}`,
+        redirectURL: url.url,
+      });
+    } else {
+      return res.statusCode(404).sendFile(path404Page);
     }
-    return res.statusCode(404).sendFile(path404Page);
   } catch {
     return res.status(404).sendFile(path404Page);
   }
@@ -135,10 +158,13 @@ app.use((error, req, res, next) => {
   } else {
     res.status(500);
   }
-  res.json({
+  let obj = {
     message: error.message,
     stack: process.env.NODE_ENV === "production" ? "🥞" : error.stack,
-  });
+    req: req.body
+  }
+  res.json(obj);
+  console.log(obj);
 });
 
 // start listening
