@@ -7,3 +7,5 @@ I am going to try and deploy this more as a proof of concept rather than an actu
 want to go through the hassle of verifying if a given URL is a scam or phishing or whatever. 
 
 If you have any comments or suggestions don't hesitate! 
+
+You can try this out at: [emojis.lucblassel.com](http://emojis.lucblassel.com)
