@@ -1,47 +1,147 @@
+const path = require("path");
 const express = require("express");
 const morgan = require("morgan");
 const cors = require("cors");
 const monk = require("monk");
 const helmet = require("helmet");
+const punycode = require("punycode");
+const yup = require("yup");
+const nodeEmoji = require("node-emoji");
 
 // reading database address + secret
 require("dotenv").config();
 
-const app = express();
-const port = 3000;
-
 const db = monk(process.env.MONGODB_URL);
-
+// check connection is established
 db.then(() => {
   console.log("Monk connected to database 🔗");
 });
-
+// choose collection
 const urls = db.get("urls");
 urls.createIndex({ emojis: 1 }, { unique: true });
 
-app.use(morgan("tiny")); // log requests
+// create app
+const app = express();
+const port = process.env.PORT || 3000;
+
+// set up middleware
+app.use(express.static("public")); // serve static files
+app.use(morgan("combined")); // log requests
 app.use(cors()); // enable CORS
 app.use(helmet()); // secure app & set headers
-app.use(express.json());
+app.use(express.json()); // parse request body as JSON
 
+// define paths
+const pathHomePage = path.join(__dirname, "public/index.html");
+const path404Page = path.join(__dirname, "public/404.html");
+
+// data validation schema
+const schema = yup.object().shape({
+  emojis: yup
+    .string()
+    .trim()
+    .matches(/^[\w\-]/i), // if not specified we generate one at random
+  url: yup.string().trim().url().required(),
+});
+
+// check if key exists
+function keyExists(key) {
+  urls.findOne({ emojis: key }).then((doc) => {
+    if (doc) {
+      return true;
+    } else {
+      return false;
+    }
+  });
+}
+
+// generate random key not in use
+function generateRandomEmojis() {
+  let emojis;
+  let exists;
+  do {
+    emojis = "";
+    for (let i = 0; i < 5; i++) {
+      emojis += nodeEmoji.random().emoji;
+    }
+    exists = keyExists(punycode.encode(emojis));
+    console.log(`${emojis}: keyExists? ${exists}`);
+  } while (exists);
+  return emojis;
+}
+
+// serve landing page
 app.get("/", (req, res) => {
-  res.send("Hello There...");
+  res.sendFile(pathHomePage);
 });
 
-app.get("/lasturl", (req, res) => {
-  urls.find({}).each((url, cursor) => {
-    res.send(JSON.stringify(url));
-    cursor.close();
+// create new shortened URL
+app.post("/newURL", async (req, res, next) => {
+  let { emojis, url } = req.body;
+  let encodedEmojis = emojis ? punycode.encode(emojis) : undefined;
+  try {
+    await schema.validate({
+      encodedEmojis,
+      url,
+    });
+
+    if (!encodedEmojis) {
+      emojis = generateRandomEmojis();
+      encodedEmojis = punycode.encode(emojis);
+    } else {
+      if (keyExists(encodedEmojis)) {
+        throw new Error("This emoji slug already exists... 😿");
+      }
+    }
+
+    if (encodedEmojis.slice(0, -1) === emojis) {
+      throw new Error("There must be at least 1 emoji in the slug... 👹");
+    }
+
+    let newURL = { emojis: encodedEmojis, url: url , raw: emojis};
+    let created = await urls.insert(newURL);
+    res.send(created);
+  } catch (error) {
+    console.log("caught error sending to default handler.");
+    next(error);
+  }
+});
+
+// get URL from shortened URL
+app.get("/:id", async (req, res, next) => {
+  const emojis = punycode.encode(req.params.id);
+  try {
+    const url = await urls.findOne({ emojis });
+    if (url) {
+      return res.send(
+        `These emojis: ${punycode.decode(emojis)} redirect to: ${url.url}`
+      );
+    }
+    return res.statusCode(404).sendFile(path404Page);
+  } catch {
+    return res.status(404).sendFile(path404Page);
+  }
+});
+
+// handle 404
+app.use((req, res, next) => {
+  res.status(404).sendFile(path404Page);
+});
+
+// handle errors
+app.use((error, req, res, next) => {
+  if (error.status) {
+    res.status(error.status);
+  } else {
+    res.status(500);
+  }
+  res.json({
+    message: error.message,
+    stack: process.env.NODE_ENV === "production" ? "🥞" : error.stack,
   });
 });
 
-app.get("/:id", (req, res) => {
-  const id = req.params.id
-  urls.findOne({ emojis: id }).then(({ emojis, url }) => {
-    res.send(`These emojis: ${emojis} redirect to: ${url}`)
-  });
-});
-
+// start listening
 app.listen(port, () => {
   console.log(`Listening on port ${port} 🦻`);
 });
