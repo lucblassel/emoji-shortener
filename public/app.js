@@ -23,7 +23,7 @@ const app = new Vue({
         if (response.ok) {
           const result = await response.json();
           this.formVisible = false;
-          this.created = `http://${result.domain}:${result.port}/${result.raw}`;
+          this.created = `http://${result.domain}/${result.raw}`;
         } else if (response.status === 429) {
           this.error = 'You are sending too many requests. Try again in 30 seconds.';
         } else {
