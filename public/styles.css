@@ -1,17 +1,17 @@
 .header {
-    text-align: center;
-    padding: 0 auto;
+  text-align: center;
+  padding: 0 auto;
 }
-body { 
-    text-align: center;
+body {
+  text-align: center;
 }
 
-.spacer{
-    margin: 10rem;
+.spacer {
+  margin: 10rem;
 }
 
 .E404 {
-    text-align: center;
-    padding: 10rem;
-    font-size: xx-large;
+  text-align: center;
+  padding: 10rem;
+  font-size: xx-large;
 }

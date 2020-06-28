@@ -27,7 +27,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 // get domain name
-const domain = process.env.DOMAIN || 'localhost';
+const domain = process.env.DOMAIN || `localhost:${port}`;
 
 // set up middleware
 app.use(express.static(path.join(__dirname, 'public'))); // serve static files
@@ -135,7 +135,7 @@ app.get("/:id", async (req, res, next) => {
       //     `These emojis: ${punycode.decode(emojis)} redirect to: ${url.url}`
       //   );
       res.render("response", {
-        emojiURL: `http://${domain}:${port}/${req.params.id}`,
+        emojiURL: `http://${domain}/${req.params.id}`,
         redirectURL: url.url,
       });
     } else {
