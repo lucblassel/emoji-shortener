@@ -1,41 +1,66 @@
 <!-- Shamelessly lifted from Coding Garden -->
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🌊👺👺🌊</title>
-  <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css" integrity="sha256-2YQRJMXD7pIAPHiXr0s+vlRWA7GYJEK0ARns7k2sbHY=" crossorigin="anonymous">
-</head>
-<body>
-  <header>
-    <h1>🌊👺👺🌊</h1>
-    <h3>(I need a name for this...)</h3>
-  </header>
-  <main id="app">
-    <form class="form" v-if="formVisible" @submit.prevent="createUrl()">
-      <div v-if="error" class="error">
-        {{error}}
-      </div>
-      <input class="input" type="text" v-model="url" name="url" id="url" placeholder="enter a url">
-      <input class="input" type="text" v-model="emojis" name="emojis" id="emojis" placeholder="Here goe the emojis 🥳">
-      <button type="submit" class="create">create</button>
-    </form>
-    <div class="explanation" v-if="formVisible"> 
-      <p class="explanation">
-        This shortens a valid URL to an emoji string. <br>
-        If you specify the emoji string it will be used. If not, a random one will be generated. 
-      </p>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🌊👺👺🌊</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/skeleton/2.0.4/skeleton.min.css"
+      integrity="sha256-2YQRJMXD7pIAPHiXr0s+vlRWA7GYJEK0ARns7k2sbHY="
+      crossorigin="anonymous"
+    />
+  </head>
+  <body>
+    <div class="appContainer">
+      <header>
+        <h1>🌊👺👺🌊</h1>
+        <h3>Emoji URL-shortener</h3>
+      </header>
+      <main id="app">
+        <form class="form" v-if="formVisible" @submit.prevent="createUrl()">
+          <div v-if="error" class="error">
+            {{error}}
+          </div>
+          <input
+            class="input"
+            type="text"
+            v-model="url"
+            name="url"
+            id="url"
+            placeholder="enter a url"
+          />
+          <input
+            class="input"
+            type="text"
+            v-model="emojis"
+            name="emojis"
+            id="emojis"
+            placeholder="Here goe the emojis 🥳"
+          />
+          <button type="submit" class="create">create</button>
+        </form>
+        <div class="explanation" v-if="formVisible">
+          <p class="explanation">
+            This shortens a valid URL to an emoji string. <br />
+            If you specify the emoji string it will be used. If not, a random
+            one will be generated.
+          </p>
+        </div>
+        <div v-if="created">
+          <p class="created">
+            Your short url is: <a :href="created">{{created}}</a>
+          </p>
+        </div>
+      </main>
     </div>
-    <div v-if="created">
-      <p class="created">Your short url is: <a :href="created">{{created}}</a></p>
-    </div>
-  </main>
-  <footer>
-    find out more at <a href="http://www.lucblassel.com">lucblassel.com</a>
-  </footer>
-  <script src="https://unpkg.com/vue@2.6.11/dist/vue.js"></script>
-  <script src="app.js"></script>
-</body>
+    <footer>
+      find out more at <a href="https://www.lucblassel.com">lucblassel.com</a>
+      or on <a href="https://github.com/lucblassel/emoji-shortener">GitHub</a>
+    </footer>
+    <script src="https://unpkg.com/vue@2.6.11/dist/vue.js"></script>
+    <script src="app.js"></script>
+  </body>
 </html>

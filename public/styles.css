@@ -2,6 +2,7 @@
   text-align: center;
   padding: 0 auto;
 }
+
 body {
   text-align: center;
 }
@@ -14,4 +15,8 @@ body {
   text-align: center;
   padding: 10rem;
   font-size: xx-large;
+}
+
+.appContainer {
+  margin: 10rem;
 }
